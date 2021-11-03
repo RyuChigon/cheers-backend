@@ -34,10 +34,23 @@ app.post("/api/user/register", async(req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
 
   const user = new User(req.body);
+  if(user.userName == ""){
+    return res.status(200).json({ success: true });
+  }
   user.save((err, userInfo) => {
     if (err) return res.json({ success: false, err });
     return res.status(200).json({ success: true });
   });
 });
+
+app.get("/api/user/users", async(req, res) => {
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+
+  const users = await User.find({});
+  console.log("signal");
+  res.json(users);
+});
+
 app.use(cors({credentials: true, origin: 'http://localhost:3002'}));
 app.listen(port, () => console.log(`listening on port ${port}`));
