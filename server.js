@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const { User } = require("./models/user");
 const cors = require('cors');
+const nms = require('./streaming');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -41,3 +42,4 @@ app.post("/api/user/register", async(req, res) => {
 });
 app.use(cors({credentials: true, origin: 'http://localhost:3002'}));
 app.listen(port, () => console.log(`listening on port ${port}`));
+nms.run();
