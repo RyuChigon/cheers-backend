@@ -34,12 +34,41 @@ app.post("/api/user/register", async(req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
 
   const user = new User(req.body);
+  const _user = new User(req.body);
+  var userList = mongoose.model('User');
   if(user.userName == ""){
     return res.status(200).json({ success: true });
   }
+  userList.findOne({userName: user.userName}, function(err, sameUser){
+      if(err){
+        return res.json({ success: false, err });
+      }else {
+        if(sameUser != null){ //이미 같은 유저가 디비에 있을떄
+          return res.status(200).json(
+          {
+            userName: user.userName,
+            action: user.action,
+            character: user.character,
+            emogee : user.emogee,
+            position_x: user.position_x,
+            position_y : user.position_y,
+            team: user.team
+          });
+        }
+      }
+    })
   user.save((err, userInfo) => {
     if (err) return res.json({ success: false, err });
-    return res.status(200).json({ success: true });
+    return res.status(200).json(
+    {
+      userName: user.userName,
+      action: user.action,
+      character: user.character,
+      emogee : user.emogee,
+      position_x: user.position_x,
+      position_y : user.position_y,
+      team: user.team
+    });
   });
 });
 
@@ -48,7 +77,6 @@ app.get("/api/user/users", async(req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
 
   const users = await User.find({});
-  console.log("signal");
   res.json(users);
 });
 
