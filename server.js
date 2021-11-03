@@ -34,6 +34,9 @@ app.post("/api/user/register", async(req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
 
   const user = new User(req.body);
+  if(user.userName == ""){
+    return res.status(200).json({ success: true });
+  }
   user.save((err, userInfo) => {
     if (err) return res.json({ success: false, err });
     return res.status(200).json({ success: true });
