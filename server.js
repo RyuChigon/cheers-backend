@@ -153,6 +153,10 @@ io.on("connection", (socket) => {
     console.log('(emogee-snd) sended from ' + item.name + ': [ ' + item.emogee + ' ]');
     io.emit('emogee-rcv', {name: item.name, emogee: item.emogee});
   });
+  socket.on('cheer-snd', item => {
+  console.log('(cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
+  io.emit('cheer-rcv', {name: item.name, cheer: item.cheer});
+});
 });
 
 httpServer.listen(80);
