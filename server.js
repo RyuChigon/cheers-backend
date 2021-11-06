@@ -106,7 +106,7 @@ app.get("/api/user/users", async(req, res) => {
   res.json(users);
 });
 
-app.use(cors({credentials: true, origin: 'http://localhost:3002'}));
+app.use(cors({credentials: true, origin: 'http://192.249.28.102:3002'}));
 app.listen(port, () => console.log(`listening on port ${port}`));
 
 //for streaming
@@ -117,14 +117,14 @@ app.listen(port, () => console.log(`listening on port ${port}`));
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "http://localhost:3002",
+    origin: "http://192.249.28.102:3002",
     methods: ["GET", "POST"],
   },
 });
 
 io.on("connection", (socket) => {
   console.log("connection");
-  socket.on("init", (payload) => {
+  socket.on("init_chat", (payload) => {
     console.log(payload);
   });
   socket.on('msg-snd', item => {
