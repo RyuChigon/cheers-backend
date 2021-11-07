@@ -99,7 +99,8 @@ app.get("/api/user/users", async(req, res) => {
   res.json(users);
 });
 
-app.use(cors({credentials: true, origin: 'http://localhost:3002'}));
+// app.use(cors({credentials: true, origin: 'http://192.249.28.102:3002'}));
+app.use(cors({credentials: true, origin: 'http://localhost:3002'})); 
 app.listen(port, () => console.log(`listening on port ${port}`));
 
 //for streaming
@@ -110,24 +111,49 @@ app.listen(port, () => console.log(`listening on port ${port}`));
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   cors: {
+    // origin: "http://192.249.28.102:3002",
     origin: "http://localhost:3002",
     methods: ["GET", "POST"],
   },
+  'pingInterval': 2000, 
+  'pingTimeout': 6000000,
 });
 
 io.on("connection", (socket) => {
   console.log("connection");
-  socket.on("init", (payload) => {
+  socket.on("init_chat", (payload) => {
     console.log(payload);
   });
   socket.on('msg-snd', item => {
-    console.log('(server) sended from ' + item.name + ': [ ' + item.message + ' ]');
+    console.log('(msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]');
     io.emit('msg-rcv', {name: item.name, message: item.message});
   });
   socket.on('kickout-snd', item => {
     console.log(item);
     io.emit('kickout-rcv', item)
   })
+  socket.on('move-snd', item => {
+    //update mongodb
+  var userList = mongoose.model('User');
+  userList.findOneAndUpdate( {userName: item.name}, {position_x: item.movement[0], position_y: item.movement[1]}, (err, userInfo) => {
+    if (err) return res.json({ success: false, err });
+  });
+    console.log('(move-snd) sended from ' + item.name + ': [ ' + item.movement + ' ]');
+    io.emit('move-rcv', {name: item.name, movement: item.movement});
+  });
+  socket.on('emogee-snd', item => {
+      //update mongodb
+    var userList = mongoose.model('User');
+    userList.findOneAndUpdate( {userName: item.name}, {emogee: item.emogee}, (err, userInfo) => {
+      if (err) return res.json({ success: false, err });
+    });
+    console.log('(emogee-snd) sended from ' + item.name + ': [ ' + item.emogee + ' ]');
+    io.emit('emogee-rcv', {name: item.name, emogee: item.emogee});
+  });
+  socket.on('cheer-snd', item => {
+  console.log('(cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
+  io.emit('cheer-rcv', {name: item.name, cheer: item.cheer});
+});
 });
 
 httpServer.listen(80);
