@@ -135,6 +135,10 @@ io.on("connection", (socket) => {
     console.log('(msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]');
     io.emit('msg-rcv', {name: item.name, message: item.message});
   });
+  socket.on('admin-msg-snd', item => {
+    console.log('(admin msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]');
+    io.emit('admin-msg-rcv', {name: item.name, message: item.message});
+  });
   socket.on('move-snd', item => {
     //update mongodb
   var userList = mongoose.model('User');
