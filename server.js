@@ -11,12 +11,6 @@ app.use(bodyParser.json());
 
 const dbAddress = "mongodb+srv://KSB21ST:5735@cluster0.hmvzn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
-// let db = mongoose.connection.User;
-// let user_coll = db.User;
-// db.on("error", console.error);
-// db.once("open", function() {
-//   console.log("Connected to mongod server");
-// });
 
 mongoose
   .connect(dbAddress, {
@@ -97,7 +91,6 @@ app.post("/api/user/modifyuser", async(req, res) => {
     });
   });
 });
-
 app.get("/api/user/users", async(req, res) => {
   res.set('Access-Control-Allow-Credentials', 'true');
   res.header("Access-Control-Allow-Origin", req.headers.origin);
@@ -135,6 +128,10 @@ io.on("connection", (socket) => {
     console.log('(msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]');
     io.emit('msg-rcv', {name: item.name, message: item.message});
   });
+  socket.on('kickout-snd', item => {
+    console.log(item);
+    io.emit('kickout-rcv', item)
+  })
   socket.on('move-snd', item => {
     //update mongodb
   var userList = mongoose.model('User');
