@@ -4,6 +4,7 @@ const port = 9000;
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const { User } = require("./models/user");
+const { Score } = require("./models/score");
 const cors = require('cors');
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,7 +29,6 @@ app.post("/api/user/register", async(req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
 
   const user = new User(req.body);
-  const _user = new User(req.body);
   var userList = mongoose.model('User');
   if(user.userName == ""){
     return res.status(200).json({ success: true });
@@ -155,8 +155,25 @@ io.on("connection", (socket) => {
     io.emit('emogee-rcv', {name: item.name, emogee: item.emogee});
   });
   socket.on('cheer-snd', item => {
-  console.log('(cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
-  io.emit('cheer-rcv', {name: item.name, cheer: item.cheer});
+    console.log('(cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
+    console.log(item.name + ' a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
+    io.emit('cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
+});
+socket.on('minigame-cheer-snd', item => {
+  console.log('(minigame-cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
+    if (item.cheer == '1'){
+      var ScoreList = mongoose.model('Score');
+      ScoreList.updateMany({}, {a_score: item.a_score, b_score: item.b_score}, function(err, CurrTeam){
+        if(err){
+          console.log('failed to find from: ' + item.name);
+        }
+      });
+      console.log(item.name + '(minigame-cheer-snd) a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
+      io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
+  }else{
+    console.log(item.name + '(minigame-cheer-snd) a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
+    io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
+  }
 });
 });
 
