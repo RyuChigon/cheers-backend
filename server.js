@@ -113,27 +113,32 @@ app.get("/api/user/cheering", (req, res) => {
   if (numOfCheers >= 10) {
     const path = './media/live/cheers/';
     fs.readdir(path, function(err, files) {
-      fileName = files[0];
+      const fileName = files[0];
+      const [ sYear, sMonth, sDate, sHour, sMinute, sSecond ]
+        = fileName.split(".")[0].split("-");
+      const startTime = new Date(sYear, sMonth - 1, sDate, sHour, sMinute, sSecond);
+      const currentTime = new Date();
+      const archiveTime = Math.floor(
+        ((currentTime.getTime() - startTime.getTime()) / 1000) - 10
+      );
       const targetVideo = path + fileName;
       const archivedVideo = './newVideo.mp4';
-  
+      
       new ffmpeg( targetVideo, (err, video) => {
         if (!err) {
-          console.log('video');
           video
-          .setVideoStartTime(3)
+          .setVideoStartTime(archiveTime)
           .setVideoDuration(10)
           .save(archivedVideo, (error, file) => {
-            if (!error) console.log('change time!')
+            if (!error) console.log('archive!')
           })
         }
       })
     })
-
   }
   res.set('Access-Control-Allow-Credentials', 'true');
   res.header("Access-Control-Allow-Origin", req.headers.origin);
-  return res.json({ success: true});
+  return res.json({ success: true });
 })
 
 // app.use(cors({credentials: true, origin: 'http://192.249.28.102:3002'}));
