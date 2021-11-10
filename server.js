@@ -175,6 +175,10 @@ socket.on('minigame-cheer-snd', item => {
     io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
   }
 });
+socket.on('minigame2-start-snd', item => {
+  console.log("(start minigame two)");
+  io.emit('minigame2-start-rcv', {});
+});
 });
 
 httpServer.listen(80);
