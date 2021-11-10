@@ -103,6 +103,7 @@ app.get("/api/user/users", async(req, res) => {
 });
 
 let numOfCheers = 0;
+let numOfArchive = 0;
 
 initializeCheers = setInterval(function() {
   numOfCheers = 0;
@@ -111,6 +112,7 @@ initializeCheers = setInterval(function() {
 app.get("/api/user/cheering", (req, res) => {
   numOfCheers++;
   if (numOfCheers >= 10) {
+    numOfCheers = 0;
     const path = './media/live/cheers/';
     fs.readdir(path, function(err, files) {
       const fileName = files[0];
@@ -122,7 +124,7 @@ app.get("/api/user/cheering", (req, res) => {
         ((currentTime.getTime() - startTime.getTime()) / 1000) - 10
       );
       const targetVideo = path + fileName;
-      const archivedVideo = './newVideo.mp4';
+      const archivedVideo = `../cheers-frontend/src/components/ViewPoint/archive/archived${numOfArchive}.mp4`;
       
       new ffmpeg( targetVideo, (err, video) => {
         if (!err) {
@@ -130,7 +132,10 @@ app.get("/api/user/cheering", (req, res) => {
           .setVideoStartTime(archiveTime)
           .setVideoDuration(10)
           .save(archivedVideo, (error, file) => {
-            if (!error) console.log('archive!')
+            if (!error) {
+              console.log('archive!');
+              numOfArchive++;
+            }
           })
         }
       })
