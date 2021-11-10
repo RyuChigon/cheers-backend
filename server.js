@@ -125,12 +125,12 @@ io.on("connection", (socket) => {
     console.log(payload);
   });
   socket.on('msg-snd', item => {
-    console.log('(msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]');
-    io.emit('msg-rcv', {name: item.name, message: item.message});
+    console.log('(msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]' + item.team);
+    io.emit('msg-rcv', {name: item.name, message: item.message, team: item.team});
   });
   socket.on('admin-msg-snd', item => {
-    console.log('(admin msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]');
-    io.emit('admin-msg-rcv', {name: item.name, message: item.message});
+    console.log('(admin msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]' + item.team);
+    io.emit('admin-msg-rcv', {name: item.name, message: item.message, team: item.team});
   });
   socket.on('kickout-snd', item => {
     console.log(item);
