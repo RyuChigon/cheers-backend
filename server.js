@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const { User } = require("./models/user");
 const { Score } = require("./models/score");
 const cors = require('cors');
+const nms = require('./streaming');
+const fs = require('fs');
+const ffmpeg = require('ffmpeg');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -99,6 +102,50 @@ app.get("/api/user/users", async(req, res) => {
   res.json(users);
 });
 
+let numOfCheers = 0;
+let numOfArchive = 0;
+
+initializeCheers = setInterval(function() {
+  numOfCheers = 0;
+}, 20000)
+
+app.get("/api/user/cheering", (req, res) => {
+  numOfCheers++;
+  if (numOfCheers >= 10) {
+    numOfCheers = 0;
+    const path = './media/live/cheers/';
+    fs.readdir(path, function(err, files) {
+      const fileName = files[0];
+      const [ sYear, sMonth, sDate, sHour, sMinute, sSecond ]
+        = fileName.split(".")[0].split("-");
+      const startTime = new Date(sYear, sMonth - 1, sDate, sHour, sMinute, sSecond);
+      const currentTime = new Date();
+      const archiveTime = Math.floor(
+        ((currentTime.getTime() - startTime.getTime()) / 1000) - 10
+      );
+      const targetVideo = path + fileName;
+      const archivedVideo = `../cheers-frontend/src/components/ViewPoint/archive/archived${numOfArchive}.mp4`;
+      
+      new ffmpeg( targetVideo, (err, video) => {
+        if (!err) {
+          video
+          .setVideoStartTime(archiveTime)
+          .setVideoDuration(10)
+          .save(archivedVideo, (error, file) => {
+            if (!error) {
+              console.log('archive!');
+              numOfArchive++;
+            }
+          })
+        }
+      })
+    })
+  }
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  return res.json({ success: true });
+})
+
 // app.use(cors({credentials: true, origin: 'http://192.249.28.102:3002'}));
 app.use(cors({credentials: true, origin: 'http://localhost:3002'})); 
 app.listen(port, () => console.log(`listening on port ${port}`));
@@ -125,12 +172,12 @@ io.on("connection", (socket) => {
     console.log(payload);
   });
   socket.on('msg-snd', item => {
-    console.log('(msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]');
-    io.emit('msg-rcv', {name: item.name, message: item.message});
+    console.log('(msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]' + item.team);
+    io.emit('msg-rcv', {name: item.name, message: item.message, team: item.team});
   });
   socket.on('admin-msg-snd', item => {
-    console.log('(admin msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]');
-    io.emit('admin-msg-rcv', {name: item.name, message: item.message});
+    console.log('(admin msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]' + item.team);
+    io.emit('admin-msg-rcv', {name: item.name, message: item.message, team: item.team});
   });
   socket.on('kickout-snd', item => {
     console.log(item);
@@ -182,3 +229,4 @@ socket.on('minigame2-start-snd', item => {
 });
 
 httpServer.listen(80);
+nms.run();
