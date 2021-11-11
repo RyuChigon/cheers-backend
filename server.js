@@ -200,23 +200,26 @@ io.on("connection", (socket) => {
     console.log('(cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
     console.log(item.name + ' a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
     io.emit('cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
-});
-socket.on('minigame-cheer-snd', item => {
-  console.log('(minigame-cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
+  });
+  socket.on('minigame-cheer-snd', item => {
+    console.log('(minigame-cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
     if (item.cheer == '1'){
       var ScoreList = mongoose.model('Score');
-      ScoreList.updateMany({}, {a_score: item.a_score, b_score: item.b_score}, function(err, CurrTeam){
+      ScoreList.updateMany({}, {a_score1: item.a_score1, b_score1: item.b_score1, a_score12: item.a_score2, b_score2: item.b_score2}, function(err, CurrTeam){
         if(err){
           console.log('failed to find from: ' + item.name);
         }
       });
-      console.log(item.name + '(minigame-cheer-snd) a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
-      io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
-  }else{
-    console.log(item.name + '(minigame-cheer-snd) a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
-    io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
-  }
-});
+      console.log(item.name + '(minigame-cheer-snd) a_team1: [' +  item.a_score1 + '] ' + 'b_team1: [' + item.b_score1 + ']' + 'a_team2: [' + item.a_score2 + ']' + 'b_team2: [' + item.b_score2 + ']');
+      io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score1: item.a_score1, b_score1: item.b_score1, a_score2: item.a_score2, b_score2: item.b_score2});
+    }else{
+      console.log(item.name + '(minigame-cheer-snd) a_team1: [' +  item.a_score1 + '] ' + 'b_team1: [' + item.b_score1 + ']' + 'a_team2: [' + item.a_score2 + ']' + 'b_team2: [' + item.b_score2 + ']');
+      io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score1: item.a_score1, b_score1: item.b_score1, a_score2: item.a_score2, b_score2: item.b_score2});
+    }
+  });
+  socket.on('minigame2-start-snd', item => {
+    io.emit('minigame2-start-rcv', {});
+  });
 });
 
 httpServer.listen(80);
