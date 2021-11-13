@@ -181,6 +181,10 @@ io.on("connection", (socket) => {
   });
   socket.on('kickout-snd', item => {
     console.log(item);
+    var userList = mongoose.model('User');
+    userList.findOneAndDelete( {userName: item.name}, (err, userInfo) => {
+      if (err) return res.json({ success: false, err });
+    });
     io.emit('kickout-rcv', item)
   })
   socket.on('move-snd', item => {
@@ -215,19 +219,6 @@ io.on("connection", (socket) => {
           console.log('failed to find from: ' + item.name);
         }
       });
-<<<<<<< HEAD
-      console.log(item.name + '(minigame-cheer-snd) a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
-      io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
-  }else{
-    console.log(item.name + '(minigame-cheer-snd) a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
-    io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
-  }
-});
-socket.on('minigame2-start-snd', item => {
-  console.log("(start minigame two)");
-  io.emit('minigame2-start-rcv', {});
-});
-=======
       console.log(item.name + '(minigame-cheer-snd) a_team1: [' +  item.a_score1 + '] ' + 'b_team1: [' + item.b_score1 + ']' + 'a_team2: [' + item.a_score2 + ']' + 'b_team2: [' + item.b_score2 + ']');
       io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score1: item.a_score1, b_score1: item.b_score1, a_score2: item.a_score2, b_score2: item.b_score2});
     }else{
@@ -238,7 +229,25 @@ socket.on('minigame2-start-snd', item => {
   socket.on('minigame2-start-snd', item => {
     io.emit('minigame2-start-rcv', {});
   });
->>>>>>> c6fe3f4304745b834b8258c04d6f4ae4a067cf5e
+  socket.on('report-user-snd', item => {
+    console.log('(report-user-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
+      var UserList = mongoose.model('User');
+      var report_num = 0;
+      UserList.findOne({userName: item.name}, function(err, userInfo){
+        if(err){
+          console.log('(report-user-snd)failed to find: ' + item.name);
+        }else{
+          report_num = userInfo.report;
+          UserList.findOneAndUpdate({userName: item.name}, {report: userInfo.report + 1}, function(err, userInfo){
+            if(err){
+              console.log('(report-user-snd)failed to update: ' + item.name);
+            }else{
+              io.emit('report-user-rcv', {name: item.name, report: userInfo.report + 1});
+            }
+          });
+        }
+      });
+  });
 });
 
 httpServer.listen(80);
