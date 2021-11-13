@@ -181,6 +181,10 @@ io.on("connection", (socket) => {
   });
   socket.on('kickout-snd', item => {
     console.log(item);
+    var userList = mongoose.model('User');
+    userList.findOneAndDelete( {userName: item.name}, (err, userInfo) => {
+      if (err) return res.json({ success: false, err });
+    });
     io.emit('kickout-rcv', item)
   })
   socket.on('move-snd', item => {
@@ -224,6 +228,25 @@ io.on("connection", (socket) => {
   });
   socket.on('minigame2-start-snd', item => {
     io.emit('minigame2-start-rcv', {});
+  });
+  socket.on('report-user-snd', item => {
+    console.log('(report-user-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
+      var UserList = mongoose.model('User');
+      var report_num = 0;
+      UserList.findOne({userName: item.name}, function(err, userInfo){
+        if(err){
+          console.log('(report-user-snd)failed to find: ' + item.name);
+        }else{
+          report_num = userInfo.report;
+          UserList.findOneAndUpdate({userName: item.name}, {report: userInfo.report + 1}, function(err, userInfo){
+            if(err){
+              console.log('(report-user-snd)failed to update: ' + item.name);
+            }else{
+              io.emit('report-user-rcv', {name: item.name, report: userInfo.report + 1});
+            }
+          });
+        }
+      });
   });
 });
 

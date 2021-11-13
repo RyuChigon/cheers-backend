@@ -29,6 +29,10 @@ const userSchema = mongoose.Schema({
     type: String,
     maxlength:1,
   },
+  report: {
+    type: Number,
+    default: 0,
+  }
 });
 
 
