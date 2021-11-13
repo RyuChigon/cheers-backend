@@ -205,7 +205,7 @@ io.on("connection", (socket) => {
     console.log('(minigame-cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
     if (item.cheer == '1'){
       var ScoreList = mongoose.model('Score');
-      ScoreList.updateMany({}, {a_score1: item.a_score1, b_score1: item.b_score1, a_score12: item.a_score2, b_score2: item.b_score2}, function(err, CurrTeam){
+      ScoreList.updateMany({}, {a_score1: item.a_score1, b_score1: item.b_score1, a_score2: item.a_score2, b_score2: item.b_score2}, function(err, CurrTeam){
         if(err){
           console.log('failed to find from: ' + item.name);
         }
