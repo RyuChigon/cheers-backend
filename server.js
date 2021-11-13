@@ -198,8 +198,8 @@ io.on("connection", (socket) => {
   });
   socket.on('cheer-snd', item => {
     console.log('(cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
-    console.log(item.name + ' a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
-    io.emit('cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
+    console.log(item.name + ' a_team: [' +  item.a_score1 + '] ' + 'b_team1: [' + item.b_score1 + ']' + 'a_team2: [' + item.a_score2 + ']' + 'b_team2: [' + item.b_score2 + ']');
+    io.emit('cheer-rcv', {name: item.name, cheer: item.cheer, a_score1: item.a_score1, b_score1: item.b_score1, a_score2: item.a_score2, b_score2: item.b_score2});
   });
   socket.on('minigame-cheer-snd', item => {
     console.log('(minigame-cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
