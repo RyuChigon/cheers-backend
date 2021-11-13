@@ -104,6 +104,7 @@ app.get("/api/user/users", async(req, res) => {
 
 let numOfCheers = 0;
 let numOfArchive = 0;
+let viewpoints = [];
 
 initializeCheers = setInterval(function() {
   numOfCheers = 0;
@@ -125,7 +126,7 @@ app.get("/api/user/cheering", (req, res) => {
       );
       const targetVideo = path + fileName;
       const archivedVideo = `../cheers-frontend/src/components/ViewPoint/archive/archived${numOfArchive}.mp4`;
-      
+      const viewpointPath = `./archive/archived${numOfArchive}.mp4`;
       new ffmpeg( targetVideo, (err, video) => {
         if (!err) {
           video
@@ -134,6 +135,7 @@ app.get("/api/user/cheering", (req, res) => {
           .save(archivedVideo, (error, file) => {
             if (!error) {
               console.log('archive!');
+              viewpoints.push(viewpointPath);
               numOfArchive++;
             }
           })
@@ -144,6 +146,12 @@ app.get("/api/user/cheering", (req, res) => {
   res.set('Access-Control-Allow-Credentials', 'true');
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   return res.json({ success: true });
+})
+
+app.get("/api/user/viewpoints", (req, res) => {
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.json({ viewpoints: viewpoints });
 })
 
 // app.use(cors({credentials: true, origin: 'http://192.249.28.102:3002'}));
