@@ -4,12 +4,20 @@ const scoreSchema = mongoose.Schema({
     team: {
         type: String,
         maxlength: 2,
-        },
-    a_score: {
+    },
+    a_score1: {
         type: Number,
         maxlength: 50,
     },
-    b_score: {
+    b_score1: {
+        type: Number,
+        maxlength: 50,
+    },
+    a_score2: {
+        type: Number,
+        maxlength: 50,
+    },
+    b_score2: {
         type: Number,
         maxlength: 50,
     }
