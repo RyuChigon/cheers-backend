@@ -103,6 +103,8 @@ app.get("/api/user/users", async(req, res) => {
 });
 
 let numOfCheers = 0;
+let numOfArchive = 0;
+let viewpoints = [];
 
 initializeCheers = setInterval(function() {
   numOfCheers = 0;
@@ -111,6 +113,7 @@ initializeCheers = setInterval(function() {
 app.get("/api/user/cheering", (req, res) => {
   numOfCheers++;
   if (numOfCheers >= 10) {
+    numOfCheers = 0;
     const path = './media/live/cheers/';
     fs.readdir(path, function(err, files) {
       const fileName = files[0];
@@ -122,15 +125,19 @@ app.get("/api/user/cheering", (req, res) => {
         ((currentTime.getTime() - startTime.getTime()) / 1000) - 10
       );
       const targetVideo = path + fileName;
-      const archivedVideo = './newVideo.mp4';
-      
+      const archivedVideo = `../cheers-frontend/src/components/ViewPoint/archive/archived${numOfArchive}.mp4`;
+      const viewpointPath = `./archive/archived${numOfArchive}.mp4`;
       new ffmpeg( targetVideo, (err, video) => {
         if (!err) {
           video
           .setVideoStartTime(archiveTime)
           .setVideoDuration(10)
           .save(archivedVideo, (error, file) => {
-            if (!error) console.log('archive!')
+            if (!error) {
+              console.log('archive!');
+              viewpoints.push(viewpointPath);
+              numOfArchive++;
+            }
           })
         }
       })
@@ -139,6 +146,12 @@ app.get("/api/user/cheering", (req, res) => {
   res.set('Access-Control-Allow-Credentials', 'true');
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   return res.json({ success: true });
+})
+
+app.get("/api/user/viewpoints", (req, res) => {
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.json({ viewpoints: viewpoints });
 })
 
 // app.use(cors({credentials: true, origin: 'http://192.249.28.102:3002'}));
@@ -176,6 +189,10 @@ io.on("connection", (socket) => {
   });
   socket.on('kickout-snd', item => {
     console.log(item);
+    var userList = mongoose.model('User');
+    userList.findOneAndDelete( {userName: item.name}, (err, userInfo) => {
+      if (err) return res.json({ success: false, err });
+    });
     io.emit('kickout-rcv', item)
   })
   socket.on('move-snd', item => {
@@ -219,6 +236,25 @@ io.on("connection", (socket) => {
   });
   socket.on('minigame2-start-snd', item => {
     io.emit('minigame2-start-rcv', {});
+  });
+  socket.on('report-user-snd', item => {
+    console.log('(report-user-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
+      var UserList = mongoose.model('User');
+      var report_num = 0;
+      UserList.findOne({userName: item.name}, function(err, userInfo){
+        if(err){
+          console.log('(report-user-snd)failed to find: ' + item.name);
+        }else{
+          report_num = userInfo.report;
+          UserList.findOneAndUpdate({userName: item.name}, {report: userInfo.report + 1}, function(err, userInfo){
+            if(err){
+              console.log('(report-user-snd)failed to update: ' + item.name);
+            }else{
+              io.emit('report-user-rcv', {name: item.name, report: userInfo.report + 1});
+            }
+          });
+        }
+      });
   });
 });
 
