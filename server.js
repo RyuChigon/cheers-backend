@@ -234,6 +234,9 @@ io.on("connection", (socket) => {
       io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score1: item.a_score1, b_score1: item.b_score1, a_score2: item.a_score2, b_score2: item.b_score2});
     }
   });
+  socket.on('minigame1-start-snd', item => {
+    io.emit('minigame1-start-rcv', item)
+  });
   socket.on('minigame2-start-snd', item => {
     io.emit('minigame2-start-rcv', {});
   });
