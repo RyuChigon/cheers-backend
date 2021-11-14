@@ -180,11 +180,16 @@ io.on("connection", (socket) => {
     io.emit('admin-msg-rcv', {name: item.name, message: item.message, team: item.team});
   });
   socket.on('kickout-snd', item => {
+    console.log("(kickout-snd) userlist");
     console.log(item);
-    var userList = mongoose.model('User');
-    userList.findOneAndDelete( {userName: item.name}, (err, userInfo) => {
-      if (err) return res.json({ success: false, err });
-    });
+    item.badUserList.map(user => {
+      console.log("(kickout-snd)" + user);
+      var userList = mongoose.model('User');
+      userList.findOneAndDelete( {userName: user}, (err, userInfo) => {
+        if (err) return res.json({ success: false, err });
+      });
+    })
+
     io.emit('kickout-rcv', item)
   })
   socket.on('move-snd', item => {
@@ -250,5 +255,5 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(80);
+httpServer.listen(8080);
 nms.run();
