@@ -15,7 +15,6 @@ app.use(bodyParser.json());
 
 const dbAddress = "mongodb+srv://KSB21ST:5735@cluster0.hmvzn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
-
 mongoose
   .connect(dbAddress, {
     useNewUrlParser: true,
@@ -220,8 +219,8 @@ io.on("connection", (socket) => {
   });
   socket.on('cheer-snd', item => {
     console.log('(cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
-    console.log(item.name + ' a_team: [' +  item.a_score + '] ' + 'b_team: [' + item.b_score + ']');
-    io.emit('cheer-rcv', {name: item.name, cheer: item.cheer, a_score: item.a_score, b_score: item.b_score});
+    console.log(item.name + ' a_team: [' +  item.a_score1 + '] ' + 'b_team1: [' + item.b_score1 + ']' + 'a_team2: [' + item.a_score2 + ']' + 'b_team2: [' + item.b_score2 + ']');
+    io.emit('cheer-rcv', {name: item.name, cheer: item.cheer, a_score1: item.a_score1, b_score1: item.b_score1, a_score2: item.a_score2, b_score2: item.b_score2});
   });
   socket.on('minigame-cheer-snd', item => {
     console.log('(minigame-cheer-snd) sended from ' + item.name + ': [ ' + item.cheer + ' ]');
@@ -238,6 +237,9 @@ io.on("connection", (socket) => {
       console.log(item.name + '(minigame-cheer-snd) a_team1: [' +  item.a_score1 + '] ' + 'b_team1: [' + item.b_score1 + ']' + 'a_team2: [' + item.a_score2 + ']' + 'b_team2: [' + item.b_score2 + ']');
       io.emit('minigame-cheer-rcv', {name: item.name, cheer: item.cheer, a_score1: item.a_score1, b_score1: item.b_score1, a_score2: item.a_score2, b_score2: item.b_score2});
     }
+  });
+  socket.on('minigame1-start-snd', item => {
+    io.emit('minigame1-start-rcv', item)
   });
   socket.on('minigame2-start-snd', item => {
     io.emit('minigame2-start-rcv', {});
