@@ -24,8 +24,6 @@ mongoose
   .catch((err) => console.log(err));
 
 
-// app.get("/", (req, res) => res.send("Hello world!!!!"));
-
 app.post("/api/user/register", async(req, res) => {
   res.set('Access-Control-Allow-Credentials', 'true');
   res.header("Access-Control-Allow-Origin", req.headers.origin);
@@ -115,7 +113,7 @@ app.get("/api/user/cheering", (req, res) => {
     numOfCheers = 0;
     const path = './media/live/cheers/';
     fs.readdir(path, function(err, files) {
-      const fileName = files[0];
+      const fileName = files[files.length - 1];
       const [ sYear, sMonth, sDate, sHour, sMinute, sSecond ]
         = fileName.split(".")[0].split("-");
       const startTime = new Date(sYear, sMonth - 1, sDate, sHour, sMinute, sSecond);
@@ -124,18 +122,35 @@ app.get("/api/user/cheering", (req, res) => {
         ((currentTime.getTime() - startTime.getTime()) / 1000) - 10
       );
       const targetVideo = path + fileName;
-      const archivedVideo = `../cheers-frontend/src/components/ViewPoint/archive/archived${numOfArchive}.mp4`;
-      const viewpointPath = `./archive/archived${numOfArchive}.mp4`;
+      const archivedPath = `../cheers-frontend/src/components/ViewPoint/archive/`
+      const archivedVideo = archivedPath + `archived${numOfArchive}.mp4`;
+
       new ffmpeg( targetVideo, (err, video) => {
         if (!err) {
           video
           .setVideoStartTime(archiveTime)
           .setVideoDuration(10)
-          .save(archivedVideo, (error, file) => {
-            if (!error) {
+          .save(archivedVideo, (err, file) => {
+            if (!err) {
               console.log('archive!');
-              viewpoints.push(viewpointPath);
-              numOfArchive++;
+              new ffmpeg( archivedVideo, (err, video) => {
+                if (!err) {
+                  const img_option = {
+                    start_time: 0,
+                    number: 1,
+                    file_name: `thumbnail${numOfArchive}`
+                  };
+                  video.fnExtractFrameToJPG(archivedPath, img_option, (err, file) => {
+                    if (!err) {
+                      console.log('thumbnail complete!');
+                      setTimeout(() => {
+                        viewpoints.push(numOfArchive);
+                        numOfArchive++;
+                      }, 3000);
+                    };
+                  })
+                }
+              })
             }
           })
         }
@@ -153,19 +168,13 @@ app.get("/api/user/viewpoints", (req, res) => {
   res.json({ viewpoints: viewpoints });
 })
 
-// app.use(cors({credentials: true, origin: 'http://192.249.28.102:3002'}));
 app.use(cors({credentials: true, origin: 'http://localhost:3002'})); 
 app.listen(port, () => console.log(`listening on port ${port}`));
-
-//for streaming
-// const nms = require('./streaming');
-// nms.run();
 
 //for socket io
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   cors: {
-    // origin: "http://192.249.28.102:3002",
     origin: "http://localhost:3002",
     methods: ["GET", "POST"],
   },
