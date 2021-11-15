@@ -263,6 +263,12 @@ io.on("connection", (socket) => {
         }
       });
   });
+  socket.on('minigame-true-start-snd', item => {
+    io.emit('minigame-true-start-rcv', item);
+  })
+  socket.on('minigame-true-end-snd', item => {
+    io.emit('minigame-true-end-rcv', item);
+  })
 });
 
 httpServer.listen(8080);
