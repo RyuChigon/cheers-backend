@@ -100,8 +100,9 @@ app.get("/api/user/users", async(req, res) => {
 });
 
 let numOfCheers = 0;
-let numOfArchive = 0;
+let numOfViewpoints = 0;
 let viewpoints = [];
+const CHEERING_STANDARD = 10;
 
 initializeCheers = setInterval(function() {
   numOfCheers = 0;
@@ -109,7 +110,7 @@ initializeCheers = setInterval(function() {
 
 app.get("/api/user/cheering", (req, res) => {
   numOfCheers++;
-  if (numOfCheers >= 10) {
+  if (numOfCheers >= CHEERING_STANDARD) {
     numOfCheers = 0;
     const path = './media/live/cheers/';
     fs.readdir(path, function(err, files) {
@@ -121,9 +122,18 @@ app.get("/api/user/cheering", (req, res) => {
       const archiveTime = Math.floor(
         ((currentTime.getTime() - startTime.getTime()) / 1000) - 10
       );
+      const set_twoDigit = (time) => {
+        return time < 10 ? '0' + time : time;
+      }
+      const viewpoints_format = {
+        num: numOfViewpoints,
+        hour: set_twoDigit(parseInt(archiveTime / 3600)),
+        min: set_twoDigit(parseInt((archiveTime % 3600) / 60)),
+        sec: set_twoDigit(archiveTime % 60)
+      }
       const targetVideo = path + fileName;
       const archivedPath = `../cheers-frontend/src/components/ViewPoint/archive/`
-      const archivedVideo = archivedPath + `archived${numOfArchive}.mp4`;
+      const archivedVideo = archivedPath + `archived${numOfViewpoints}.mp4`;
 
       new ffmpeg( targetVideo, (err, video) => {
         if (!err) {
@@ -138,14 +148,14 @@ app.get("/api/user/cheering", (req, res) => {
                   const img_option = {
                     start_time: 0,
                     number: 1,
-                    file_name: `thumbnail${numOfArchive}`
+                    file_name: `thumbnail${numOfViewpoints}`
                   };
                   video.fnExtractFrameToJPG(archivedPath, img_option, (err, file) => {
                     if (!err) {
                       console.log('thumbnail complete!');
                       setTimeout(() => {
-                        viewpoints.push(numOfArchive);
-                        numOfArchive++;
+                        viewpoints.push(viewpoints_format);
+                        numOfViewpoints++;
                       }, 3000);
                     };
                   })
