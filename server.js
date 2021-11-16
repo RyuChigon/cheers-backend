@@ -9,6 +9,7 @@ const cors = require('cors');
 const nms = require('./streaming');
 const fs = require('fs');
 const ffmpeg = require('ffmpeg');
+const PASSCODE = 'hello';
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -176,6 +177,15 @@ app.get("/api/user/viewpoints", (req, res) => {
   res.set('Access-Control-Allow-Credentials', 'true');
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.json({ viewpoints: viewpoints });
+})
+
+app.post("/api/admin/access", (req, res) => {
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  if (req.body.passcode === PASSCODE)
+    res.json({ access: 'success' });
+  else
+    res.json({ access: 'fail' });
 })
 
 app.use(cors({credentials: true, origin: 'http://localhost:3002'})); 
