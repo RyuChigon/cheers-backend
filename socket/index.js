@@ -10,9 +10,6 @@ const io = require("socket.io")(httpServer, {
 
 io.on("connection", (socket) => {
   console.log("connection");
-  socket.on("init_chat", (payload) => {
-    console.log(payload);
-  });
   socket.on('msg-snd', item => {
     console.log('(msg-snd) sended from ' + item.name + ': [ ' + item.message + ' ]' + item.team);
     io.emit('msg-rcv', {name: item.name, message: item.message, team: item.team});
