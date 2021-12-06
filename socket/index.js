@@ -31,6 +31,15 @@ io.on("connection", (socket) => {
 
     io.emit('kickout-rcv', item)
   })
+  socket.on('logout-snd', item => {
+    console.log("(logout-snd)" + item.name);
+    var userList = mongoose.model('User');
+    userList.findOneAndDelete( {userName: item.name}, (err, userInfo) => {
+      if (err) return res.json({ success: false, err });
+    });
+
+    io.emit('logout-rcv', item)
+  })
   socket.on('move-snd', item => {
     //update mongodb
   var userList = mongoose.model('User');
