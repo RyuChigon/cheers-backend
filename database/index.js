@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const dbAddress = "mongodb+srv://KSB21ST:5735@cluster0.hmvzn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const dbAddress = "mongodb://localhost:27017/cheers";
 
 mongoose
   .connect(dbAddress, {

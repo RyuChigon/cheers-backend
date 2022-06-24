@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const nms = require('./streaming');
+// const nms = require('./streaming');
 const httpServer = require('./socket');
 const userRouter = require('./routes/user');
 const adminRouter = require('./routes/admin');
@@ -17,4 +17,4 @@ app.use('/api/admin', adminRouter);
 
 app.listen(PORT, () => console.log(`listening on port ${PORT}`));
 httpServer.listen(SOCKET_PORT);
-nms.run();
+// nms.run();
